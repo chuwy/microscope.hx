@@ -9,7 +9,7 @@
 
 (struct Microscope (
         ;; Immutable picker's config provided by user
-        config
+        picker
         ;; The state of input field
         input
         ;; All items grabbed with Picker-fetch
@@ -39,12 +39,12 @@
 ;;@doc
 ;; Run a fetch function defined in user-provided Picker
 (define (Microscope-fetch mcs query state)
-  ((Picker-fetch (Microscope-config mcs)) query state))
+  ((Picker-fetch (Microscope-picker mcs)) query state))
 
 
 (define (Microscope-select mcs)
   (let* ([selected (Microscope-selected-item mcs)]
-         [callback (Picker-on-select (Microscope-config mcs))]
+         [callback (Picker-on-select (Microscope-picker mcs))]
          [result (callback selected (unbox (Microscope-state mcs)))]
          [new-state (cdr result)]
          [event-result (car result)])
@@ -60,7 +60,7 @@
 ;;@doc
 ;; Get string representations of items to render
 (define (Microscope-render-items mcs width)
-  (map (lambda (item) ((Picker-show (Microscope-config mcs)) item width))
+  (map (lambda (item) ((Picker-show (Microscope-picker mcs)) item width))
        (Microscope-get-page mcs)))
 
 

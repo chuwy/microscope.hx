@@ -1,11 +1,11 @@
 (require-builtin helix/components)
 
 (require "helix/misc.scm")
-(require "helix/commands.scm")
 (require "input.scm")
 (require "state.scm")
+(require "ui.scm")
 
-(provide microscope microscope-file-explorer)
+(provide microscope Line Picker)
 
 
 (define MICROSCOPE-COMPONENT-NAME "microscope")
@@ -20,42 +20,6 @@
                                    state
                                    render-microscope
                                    (hash "handle_event" handle-microscope-event "cursor" get-microscope-cursor))))
-
-
-;; Example file picker
-(define (microscope-file-explorer)
-  (define (on-select selected state)
-    (define selected-full (canonicalize-path selected))
-    (cond [(eq? selected "..")
-           ;; At the moment we hit '..' - we have the last current dir in the state
-           (cons event-result/consume (if state (parent-name state) selected-full))]
-          [(is-dir? selected)
-           (cons event-result/consume selected-full)]
-          [else
-           (open selected)
-           (cons event-result/close selected-full)]))
-
-  (define (fetch query state)
-    (define dirs (read-dir (or state ".")))
-    (filter (lambda (item) (string-contains? (file-name item) query)) (cons ".." dirs)))
-
-  (define (show path width)
-    (let
-      ([lhs (cond
-              ((eq? path "..") (cons ".." "ui.text.directory") )
-              ((is-dir? path) (cons (string-append (file-name path) "/") "ui.text.directory") )
-              (else (cons (file-name path) "ui.text") ))]
-       [rhs (if (is-dir? path) (cons (to-string (length (read-dir path))) "ui.text") "")])
-
-      (Line (list lhs) (list rhs))))
-
-  (microscope (Picker fetch show on-select)))
-
-
-(define (string-repeat str n)
-  (if (<= n 0)
-      ""
-      (string-append str (string-repeat str (- n 1)))))
 
 
 (define (get-microscope-cursor state rect)
@@ -130,33 +94,6 @@
         ((changed) (Microscope-refresh state) event-result/consume)
         ((moved) event-result/consume)
         (else event-result/ignore)))
-
-
-(define (calculate-outer-area rect)
-  (let* ([screen-width (area-width rect)]
-         [screen-height (area-height rect)]
-
-         [outer-width (inexact->exact (round (* screen-width 0.50)))]
-         [outer-height (inexact->exact (round (* screen-height 0.68)))]
-         [outer-x (inexact->exact (round (/ (- screen-width outer-width) 2)))]
-         [outer-y (inexact->exact (round (/ (- screen-height outer-height) 2)))])
-         (area outer-x outer-y outer-width outer-height)))
-
-
-(define (calculate-input-area outer-rect)
-  (let* ([inner-width (- (area-width outer-rect) 2)]
-         [inner-height 2]
-         [inner-x (+ 1 (area-x outer-rect))]
-         [inner-y (+ 1 (area-y outer-rect))])
-         (area inner-x inner-y inner-width inner-height)))
-
-
-(define (calculate-list-area outer-rect)
-  (let* ([inner-width (- (area-width outer-rect) 2)]
-         [inner-height (- (area-height outer-rect) 2)]
-         [inner-x (+ 1 (area-x outer-rect))]
-         [inner-y (+ 1 2 (area-y outer-rect))])
-         (area inner-x inner-y inner-width inner-height)))
 
 
 (define (render-microscope state rect frame)
