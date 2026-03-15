@@ -162,20 +162,26 @@
 (define (render-microscope state rect frame)
   (define border-style (theme-scope *helix.cx* "info"))
   (define block (make-block (theme-scope *helix.cx* "ui.background") border-style "all" "rounded"))
+  (define header-line (make-block (theme-scope *helix.cx* "ui.background") border-style "top" "plain"))
 
   (let* ([outer-area (calculate-outer-area rect)]
          [input-area (calculate-input-area outer-area)]
          [inner-area (calculate-list-area outer-area)]
+         [header-area (area (area-x input-area) (+ (area-y input-area) 1) (area-width input-area) 1)]
          [slots (- (area-height inner-area) 2)])
          (begin
            (set-box! (Microscope-slots state) slots)
            (buffer/clear frame outer-area)
            (block/render frame outer-area block)
+           (block/render frame header-area header-line)
            (render-microscope-input-line frame input-area state)
            (render-microscope-lines frame inner-area state))))
 
 
 (define (render-microscope-input-line frame inner-area state)
+  (define border-style (theme-scope *helix.cx* "info"))
+
+
   (define input (Microscope-get-input state))
   (frame-set-string!
     frame
