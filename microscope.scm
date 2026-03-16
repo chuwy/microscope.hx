@@ -101,19 +101,47 @@
   (define block (make-block (theme-scope *helix.cx* "ui.background") border-style "all" "rounded"))
   (define header-line (make-block (theme-scope *helix.cx* "ui.background") border-style "top" "plain"))
 
-  (let* ([outer-area (calculate-outer-area rect)]
+  (define with-preview? (Picker-preview (Microscope-picker state)))
+
+  (let* ([outer-area (calculate-outer-area rect with-preview?)]
          [input-area (calculate-input-area outer-area)]
          [inner-area (calculate-list-area outer-area)]
          [header-area (area (area-x input-area) (+ (area-y input-area) 1) (area-width input-area) 1)]
+         [preview-area (if with-preview? (calculate-preview-area outer-area) #f)]
          [slots (- (area-height inner-area) 2)])
          (begin
            (set-box! (Microscope-slots state) slots)
            (buffer/clear frame outer-area)
            (block/render frame outer-area block)
            (block/render frame header-area header-line)
+           (when preview-area
+                 (buffer/clear frame preview-area)
+                 (block/render frame preview-area block)
+                 (render-preview frame state preview-area))
            (render-microscope-input-line frame input-area state)
            (render-microscope-lines frame inner-area state))))
 
+(define (render-preview frame state preview-area)
+  ;; render called iff preview is not #f and preview-area is not #f
+  (define output (Microscope-get-preview state))
+
+  (define x-start (+ (area-x preview-area) 2))
+  (define y-start (+ (area-y preview-area) 1))
+  (define height (- (area-height preview-area) 2))
+  (define width (- (area-width preview-area) 4))
+
+  (define idx 0)
+
+  (for-each (lambda (line)
+                    (when (< idx height)   ;; for-each keeps iterating noop
+                          (frame-set-string!
+                            frame
+                            x-start
+                            (+ y-start idx)
+                            (substring line 0 (min (string-length line) width))
+                            (theme-scope *helix.cx* "ui.text"))
+                          (set! idx (+ 1 idx))))
+            output))
 
 (define (render-microscope-input-line frame inner-area state)
   (define border-style (theme-scope *helix.cx* "info"))

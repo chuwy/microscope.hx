@@ -1,7 +1,8 @@
 (require-builtin helix/components)
 
-(require "microscope.scm")
 (require "helix/commands.scm")
+(require "microscope.scm")
+(require "previewer.scm")
 
 (provide microscope-file-explorer)
 
@@ -32,6 +33,6 @@
 
       (Line (list lhs) (list rhs))))
 
-  (microscope (Picker fetch show on-select)))
 
+  (microscope (Picker fetch show on-select file-previewer)))
 

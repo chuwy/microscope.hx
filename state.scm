@@ -2,8 +2,8 @@
 
 (require "input.scm")
 
-(provide Picker
-         Microscope Microscope-input Microscope-items Microscope-selected Microscope-refresh Microscope-selected-slot Microscope-slots
+(provide Picker Picker-preview
+         Microscope Microscope-picker Microscope-input Microscope-items Microscope-selected Microscope-refresh Microscope-selected-slot Microscope-slots Microscope-get-preview
          Microscope-prev Microscope-next Microscope-get-input Microscope-select Microscope-render-items Microscope-get-page)
 
 
@@ -25,9 +25,10 @@
 ;;@doc
 ;; The main structure used to create reusable pickers.
 (struct Picker
-  (fetch     ; function: (string? any/c -> list?) fetches items based on input field text
-   show      ; function: (any/c -> string?) renders an item as a string
-   on-select))  ; function: (any/c -> void?) callback invoked when user hits Return
+  (fetch      ; function: (string? any/c -> list?) fetches items based on input field text
+   show       ; function: (any/c -> string?) renders an item as a string
+   on-select  ; function: (any/c -> void?) callback invoked when user hits Return
+   preview))
 
 
 ;;@doc
@@ -40,6 +41,12 @@
 ;; Run a fetch function defined in user-provided Picker
 (define (Microscope-fetch mcs query state)
   ((Picker-fetch (Microscope-picker mcs)) query state))
+
+
+(define (Microscope-get-preview mcs)
+  (define preview (Picker-preview (Microscope-picker mcs)))
+  (define selected (Microscope-selected-item mcs))
+  (preview selected))
 
 
 (define (Microscope-select mcs)
