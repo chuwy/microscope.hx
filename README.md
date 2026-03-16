@@ -23,7 +23,7 @@ forge pkg install --git https://github.com/chuwy/microscope.hx.git
 Microscope provides an API and utility functions for writing your own pickers,
 yet it doesn't provide any UI or commands that can be used out of the box.
 
-The only picker shipped with Microscope is [file-picker](https://github.com/chuwy/microscope.hx/blob/microscope-file-picker.scm),
+The only picker shipped with Microscope is [file-picker](https://github.com/chuwy/microscope.hx/blob/trunk/microscope-file-explorer.scm),
 which is a creepled copy of file explorer invoked by `<space>e`, which nevertheless gives you a good glimplse what the API can do.
 
 ```scheme
