@@ -83,15 +83,24 @@ but also supposed to return a pair of event-result (from `helix/components` buil
 If event result is close - the picker will be closed,
 if it's consume - a `fetch` will be invoked again to obtain another list of items. `query` will be empty, but state change is up to you. 
 
+### `preview`
+
+This argument can be `#f` if you don't need a preview window, that's ok.
+But if you do need it - it must a function taking an item you've got with `fetch` and returning a list of strings that are to become lines in the preview window.
+Microscope will be truncate each line to specified width and drop the lines that don't fit the height. 
+
+You often want to take some ready previewers, e.g. there's `file-previewer` defined in `previewer.scm` that is given a file path will output its contents.
+
 That's it. You can construct your `Picker`, pass it to `microscope` function and *provide* from your `init.scm`:
 
 ```scheme
 ;; init.scm
 (require "microscope/microscope.scm")
+(require "microscope/previewer.scm")
 
 (provide my-cool-picker) 
 
 (define (my-cool-picker)
-        (microscope (Picker fetch show on-select)))
+        (microscope (Picker fetch show on-select file-previewer)))
 ```
 
