@@ -43,10 +43,13 @@
   ((Picker-fetch (Microscope-picker mcs)) query state))
 
 
+;;@doc
+;; Get the render function and apply it to a currently selected item
+;; Returns a list of lines to display in a preview window
 (define (Microscope-get-preview mcs)
   (define preview (Picker-preview (Microscope-picker mcs)))
-  (define selected (Microscope-selected-item mcs))
-  (preview selected))
+  (call-with-exception-handler (lambda (_) (list))  ;; Microscope-selected-item can throw out-of-bound
+                               (lambda () (preview (Microscope-selected-item mcs)))))
 
 
 (define (Microscope-select mcs)
@@ -70,7 +73,10 @@
   (map (lambda (item) ((Picker-show (Microscope-picker mcs)) item width))
        (Microscope-get-page mcs)))
 
-
+;;@doc
+;; Get the currently selected item as is
+;; Note: out-of-bounds isn't handled here because item can be any value,
+;; including #f and void, so there's no meaningful value to use as a fallback
 (define (Microscope-selected-item mcs)
   (list-ref (Microscope-get-page mcs) (Microscope-selected-slot mcs)))
 
